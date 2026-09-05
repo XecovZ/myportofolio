@@ -5,12 +5,12 @@
 }
 
 :root {
-    --ink: #1c1917;
-    --paper: #faf6f0;
-    --accent: #d95d39;
-    --accent-dark: #a8442a;
-    --line: #e3d9c9;
-    --text-muted: #6b6459;
+    --ink: #f8fafc;
+    --paper: #0f172a;
+    --accent: #38bdf8;
+    --accent-dark: #0284c7;
+    --line: #334155;
+    --text-muted: #94a3b8;
     --radius: 4px;
 }
 
@@ -66,6 +66,7 @@
     border-radius: 50%;
     background-color: var(--accent);
     z-index: 1; /* Biar titik ada di atas garis */
+    box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent); /* glow effect di dots */
 }
 
 /* Bold text institusi pengalaman terkait */
@@ -89,11 +90,16 @@
     margin-bottom: 0.50rem;
 }
 
+
 body {
     font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--ink);
     background-color: var(--paper);
     line-height: 1.6;
+
+    /* Background dot */
+    background-image: radial-gradient(var(--line) 1px, transparent 1px);
+    background-size: 30px 30px;
 }
 
 h1, .brand {
@@ -108,6 +114,9 @@ h1, .brand {
 
 .site-header {
     border-bottom: 1px solid var(--line);
+    background-color: var(--paper);
+    position: relative; 
+    z-index: 10;
 }
 
 .site-header .container {
@@ -215,6 +224,7 @@ h1, .brand {
 
 .social-link:hover {
     background-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent); /* glow hover */
 }
 
 .hero-photo {
@@ -232,6 +242,7 @@ h1, .brand {
     background-color: var(--accent);
     border-radius: var(--radius);
     z-index: 0;
+    box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);  /* biar glowing */
 }
 
 .avatar {
@@ -250,6 +261,9 @@ h1, .brand {
     color: var(--text-muted);
     font-size: 0.85rem;
     border-top: 1px solid var(--line);
+    background-color: var(--paper);
+    position: relative; 
+    z-index: 10;
 }
 
 @media (max-width: 600px) {
