@@ -14,6 +14,10 @@
     --radius: 4px;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 
 /* EXPERIENCES SECTION */
 #experiences {
