@@ -3,7 +3,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from main.models import Experience
-
+from main.models import Achievement
+import datetime
 
 class MainTest(TestCase):
     def setUp(self):
@@ -56,3 +57,33 @@ class MainTest(TestCase):
         self.assertFalse(self.experience.is_ongoing)
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
+
+
+# Unittest buat achievement page
+class AchievementPageTest(TestCase):
+    
+    def test_url_and_template_correct(self):
+        # Apakah url bisa diakses pake template yang bener
+        response = self.client.get(reverse('main:show_achievement'))
+        
+        self.assertEqual(response.status_code, 200) # 200 artinya OK
+        self.assertTemplateUsed(response, 'achievement.html')
+
+    def test_model_data_appears_when_data_exists(self):
+        # Bikin dummy data dulu
+        Achievement.objects.create(
+            title="1st Place AI Challenge",
+            organizer="COMPFEST 18",
+            achieved_at=datetime.date(2026, 4, 1)
+        )
+        
+        response = self.client.get(reverse('main:show_achievement'))
+        
+        # Apakah terender di page?
+        self.assertContains(response, "1st Place AI Challenge")
+        self.assertContains(response, "COMPFEST 18")
+
+    def test_empty_state_message_when_no_data(self):
+        # Sengaja ga buat data dummy biar kosong
+        response = self.client.get(reverse('main:show_achievement'))
+        self.assertContains(response, "Belum ada achievement saat ini.")

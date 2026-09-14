@@ -40,6 +40,8 @@
 
                         <p>{{ achievement.description }}</p>
                     </article>
+                    {% empty %}
+                        <p class="empty-state">Belum ada achievement saat ini.</p> 
                     {% endfor %}
                     
                 </div>
