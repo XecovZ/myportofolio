@@ -378,4 +378,14 @@ h1, .brand {
     /* Spacing */
     padding: 1.5rem 2rem; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+
+    /* Kasih transition hover effect biar smooth */
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Buat hover effect */
+#achievements article:hover {
+    transform: translateY(-5px); 
+    border-color: var(--accent); 
+    box-shadow: 0 10px 25px rgba(56, 189, 248, 0.15); 
 }
