@@ -27,3 +27,16 @@ class Experience(models.Model):
     @property
     def is_ongoing(self):
         return self.ended_at is None
+    
+    
+# Create your models here.
+class Achievement(models.Model):
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    organizer = models.CharField(max_length=255)
+    achieved_at = models.DateTimeField()
+    
+    def __str__(self):
+        return self.title
+    
