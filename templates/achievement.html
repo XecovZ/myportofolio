@@ -26,19 +26,23 @@
             <div class="container">
                 <p class="section-kicker">What I've achieved so far</p>
                 <h1>Achievement</h1>
-                
-                {% for achievement in achievement_list %}
-                <article>
-                    <h3>{{ achievement.title }}</h3>
-                    <p>{{ achievement.organizer }}</p>
 
-                    <time datetime="{{ achievement.achieved_at|date:'Y-m' }}">
-                        {{ achievement.achieved_at|date:'M Y' }}
-                    </time>
+                <div class="achievement-grid">
+                    {% for achievement in achievement_list %}
+                    <article>
+                        <h3>{{ achievement.title }}</h3>
 
-                    <p>{{ achievement.description }}</p>
-                </article>
-                {% endfor %}
+                        <p><span class="issued-by">Issued by</span> {{ achievement.organizer }}</p>
+
+                        <time datetime="{{ achievement.achieved_at|date:'Y-m' }}">
+                            {{ achievement.achieved_at|date:'M Y' }}
+                        </time>
+
+                        <p>{{ achievement.description }}</p>
+                    </article>
+                    {% endfor %}
+                    
+                </div>
             </div>
         </section>
     </main>

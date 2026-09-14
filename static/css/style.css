@@ -352,3 +352,30 @@ h1, .brand {
     font-size: 0.85rem;
     font-weight: 600;
 }
+
+
+/* ACHIEVEMENT PAGE */
+
+#achievements {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.achievement-grid {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; 
+    
+    max-width: 800px; 
+}
+
+#achievements article {
+    background-color: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px; 
+    
+    /* Spacing */
+    padding: 1.5rem 2rem; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+}
