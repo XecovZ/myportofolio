@@ -32,10 +32,26 @@ Kelas : PBP B
 
 3. Pada saat mengimplementasi website portofolio impian, saya terpikirkan untuk menambah background "Particle Network Pattern" (referensi website: https://williamlin.io/). Namun, Gemini bilang bahwa implementasinya di CSS murni sangatlah kompleks karena titik-titiknya tersebar secara random. Setelah saya cari tahu lebih lanjut, ternyata orang-orang menggunakan JavaScript untuk membuatnya. Di situ saya sadar bahwa static web murni memiliki keterbatasan. Pada iterasi proyek selanjutnya (setelah belajar javascript), saya ingin menambahkan background tersebut di web portofolio saya. 
 
+
+Link chat history tugas 1: https://share.gemini.google/eCaB7DvXX1I6
+
+
+### Tugas 2
+
+1. Project urls.py memeriksa awalan URL saat request masuk, kemudian mengarahkan ke urls.py punya aplikasi yang ingin dituju. App urls.py menerima arahan dari Project urls.py dan memanggil fungsi View yang menangani page tersebut. View menerima request, lalu meminta data yang dibutuhkan kepada Model. Model mengambil data dari database dan memberikannya ke View. View memberikan data yang diterima ke Template. Kemudian data-data tersebut dirender sebagai tampilan yang ditampilkan ke user.
+
+
+2. Kalau kita punya sangat banyak data yang ingin ditampilkan, approach hard-coding akan membuat kode template menjadi tidak enak dilihat. Dengan menyimpan data pada model, kita bisa bebas mengupdate (add/edit/delete) data tanpa mengubah kode program. Selain itu, ada banyak manfaat apabila kita menyimpan data pada model, salah satunya adalah penambahan fitur pencarian dan filter.
+
+
+3. `makemigrations` mengecek apakah ada perubahan pada models.py. Jika ada, secara otomatis membuat file baru di folder migrations sebagai blueprint migrasi. `migrate` membaca blueprint yang sudah dibuat `makemigrations` dan menjalankannya agar skema database terupdate dengan perubahan terbaru. Saya melakukan 2 kali remigration pada model Achievement ketika saya memutuskan untuk menghapus field "description" dan menghapus `auto_now_add=True` pada `achieved_at = models.DateTimeField()`
+
+
+Link chat history tugas 2: https://share.gemini.google/xs8GHTYL9LQR
+
+
 ### AI Disclosure
 
 Saya menggunakan Gemini 3.1 untuk membantu pengerjaan tugas PBP. Strategi yang saya gunakan adalah: Untuk HTML, saya minta untuk diberikan best practice dalam HTML, kemudian saya implementasikan itu sendiri dan meminta feedback apakah sudah sesuai atau belum. Untuk CSS, saya menggunakan Gemini untuk men-generate kode untuk styling, kemudian saya minta penjelasan untuk setiap baris kode yang dibuat agar saya paham apa yang dilakukan kode tersebut.
 
 Selain itu, saya juga menggunakan Gemini untuk bertanya pertanyaan-pertanyaan yang lebih spesifik tentang kegunaan suatu kode (misal: "Apa bedanya `<section>` dan `<article>`?")
-
-Link chat history: https://share.gemini.google/eCaB7DvXX1I6
