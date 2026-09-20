@@ -3,7 +3,7 @@ from django.shortcuts import render
 from main.models import Experience, Project
 from main.models import Achievement
 
-from main.forms import ProjectForm
+from main.forms import AchievementForm, ExperienceForm, ProjectForm
 from django.contrib import messages
 from django.core import serializers
 from django.http import HttpResponse
@@ -21,6 +21,7 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
+# EXPERIENCE
 
 def show_experience(request):
     context = {
@@ -29,6 +30,42 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
+def create_experience(request):
+    form = ExperienceForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Experience baru berhasil ditambahkan!")
+        return redirect("main:show_experience")
+
+    context = {
+        "name": "M. Fatih Danika",
+        "form": form,
+    }
+    return render(request, "experience_form.html", context)
+
+def get_experience_json(request):
+    title_query = request.GET.get("title", "").strip()
+    experience = Experience.objects.all()
+
+    if title_query:
+        experience = experience.filter(title__icontains=title_query)
+
+    experience_json = serializers.serialize("json", experience)
+    return HttpResponse(experience_json, content_type="application/json")
+
+def delete_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.method == "POST":
+        experience.delete()
+        messages.success(request, "Experience berhasil dihapus!")
+        return redirect("main:show_experience")
+
+    return redirect("main:show_experience")
+
+
+# ACHIEVEMENT
 
 def show_achievement(request):
     context = {
@@ -38,19 +75,42 @@ def show_achievement(request):
     
     return render(request, "achievement.html", context)
 
-def create_project(request):
-    form = ProjectForm(request.POST or None)
+def create_achievement(request):
+    form = AchievementForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Proyek baru berhasil ditambahkan!")
-        return redirect("main:show_projects")
+        messages.success(request, "Achievement baru berhasil ditambahkan!")
+        return redirect("main:show_achievement")
 
     context = {
         "name": "M. Fatih Danika",
         "form": form,
     }
-    return render(request, "projects_form.html", context)
+    return render(request, "achievement_form.html", context)
+
+def get_achievement_json(request):
+    title_query = request.GET.get("title", "").strip()
+    achievement = Achievement.objects.all()
+
+    if title_query:
+        achievement = achievement.filter(title__icontains=title_query)
+
+    achievement_json = serializers.serialize("json", achievement)
+    return HttpResponse(achievement_json, content_type="application/json")
+
+def delete_achievement(request, achievement_id):
+    achievement = get_object_or_404(Achievement, pk=achievement_id)
+
+    if request.method == "POST":
+        achievement.delete()
+        messages.success(request, "Achievement berhasil dihapus!")
+        return redirect("main:show_achievement")
+
+    return redirect("main:show_achievement")
+
+
+# PROJECTS
 
 def show_projects(request):
     json_response = get_projects_json(request)
@@ -69,6 +129,20 @@ def show_projects(request):
     }
     return render(request, "project.html", context)
 
+
+def create_project(request):
+    form = ProjectForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Proyek baru berhasil ditambahkan!")
+        return redirect("main:show_projects")
+
+    context = {
+        "name": "M. Fatih Danika",
+        "form": form,
+    }
+    return render(request, "projects_form.html", context)
 
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
