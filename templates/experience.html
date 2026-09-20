@@ -32,6 +32,12 @@
                 <div class="experience-grid">
                     {% for experience in experience_list %}
                         <article class="experience-card">
+                            
+                            <!-- Kalo ada, tampilin thumbnail -->
+                            {% if experience.thumbnail %}
+                                <img src="{{ experience.thumbnail }}" alt="Thumbnail {{ experience.title }}" style="width: 100%; border-radius: 8px; margin-bottom: 12px; object-fit: cover;">
+                            {% endif %}
+                            
                             <span class="experience-category">
                                 {{ experience.get_category_display }}
                             </span>

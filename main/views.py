@@ -24,9 +24,17 @@ def show_main(request):
 # EXPERIENCE
 
 def show_experience(request):
+    json_response = get_experience_json(request)
+    experiences = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    experiences = [exp.object for exp in experiences]
+    title_query = request.GET.get("title", "").strip()
     context = {
         "name": "M. Fatih Danika",
-        "experience_list": Experience.objects.all(),
+        "experience_list": experiences,
+        "title_query": title_query,
     }
     return render(request, "experience.html", context)
 
@@ -68,11 +76,18 @@ def delete_experience(request, experience_id):
 # ACHIEVEMENT
 
 def show_achievement(request):
+    json_response = get_achievement_json(request)
+    achievements = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    achievements = [ach.object for ach in achievements]
+    title_query = request.GET.get("title", "").strip()
     context = {
         "name": "M. Fatih Danika",
-        "achievement_list": Achievement.objects.all()
+        "achievement_list": achievements,
+        "title_query": title_query,
     }
-    
     return render(request, "achievement.html", context)
 
 def create_achievement(request):
