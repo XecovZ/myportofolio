@@ -22,6 +22,7 @@ Kelas : PBP B
    http://127.0.0.1:8000/
 ```
 
+
 ### Tugas 1
 
 1. Saya menggunakan `<section>` dan `<article>`. Walau keduanya memiliki fungsi yang sama sebagai container di HTML, saya merasa makna semantiknya membantu saya dalam aspek kerapihan kode dan membuat kode jadi lebih enak dibaca. Seperti pada kasus saya, `<section>` bermakna suatu bagian di web portofolio yang mengcontain pengalaman saya. Sementara `<article>` bermakna rincian dari pengalaman tersebut.
@@ -50,8 +51,22 @@ Link chat history tugas 1: https://share.gemini.google/eCaB7DvXX1I6
 Link chat history tugas 2: https://share.gemini.google/xs8GHTYL9LQR
 
 
+### Tugas 3
+
+1. Penggunaan ModelForm membuat implementasi input data kita menjadi lebih modular. Manfaatnya kita tidak perlu membuat `<input>` secara manual di file htmlnya. Selain itu `ModelForm` juga sudah secara otomatis membuat form HTML berdasarkan arsitektur Model yang sudah didefinisikan di `models.py`. `{% csrf_token %}` digunakan sebagai aspek security yang melindungi website dari tindakan tak terautorisasi oleh orang asing (atau disebut serangan Cross-Site Request Forgery)
+
+
+2. Karena JSON lebih ringan dan syntaxnya lebih simple. Selain itu JSON (JavaScript Object Notation) juga native untuk JavaScript yang merupakan bahasa yang populer dalam web development. 
+
+
+3. Setelah client mengirim request ke URL di website portofolio, URL tersebut dikirim ke fungsi `show_model` di `views.py`. Fungsi tersebut memanggil fungsi `get_model_json` yang kemudian membuat perintah ORM secara otomatis untuk mengambil data dari database berupa QuerySet object. Setelah itu, object tersebut akan diberikan ke Serializer untuk diterjemahkan menjadi string JSON. Data JSON tersebut akhirnya dikembalikan pada client dalam bentuk HTTP Response yang dirender. Serialization berfungsi untuk menerjemahkan QuerySet object menjadi format JSON yang lebih mudah dibaca.
+
+
+Link chat history tugas 3: https://share.gemini.google/azgSPG49PL6J
+
+
 ### AI Disclosure
 
-Saya menggunakan Gemini 3.1 untuk membantu pengerjaan tugas PBP. Strategi yang saya gunakan adalah: Untuk HTML, saya minta untuk diberikan best practice dalam HTML, kemudian saya implementasikan itu sendiri dan meminta feedback apakah sudah sesuai atau belum. Untuk CSS, saya menggunakan Gemini untuk men-generate kode untuk styling, kemudian saya minta penjelasan untuk setiap baris kode yang dibuat agar saya paham apa yang dilakukan kode tersebut.
+Saya menggunakan Gemini 3.1 untuk membantu pengerjaan tugas PBP. Strategi yang saya gunakan adalah: Untuk HTML, saya minta untuk diberikan best practice dalam HTML, kemudian saya implementasikan itu sendiri dan meminta feedback apakah sudah sesuai atau belum. Untuk CSS, saya menggunakan Gemini untuk men-generate kode untuk styling, kemudian saya minta penjelasan untuk setiap baris kode yang dibuat agar saya paham apa yang dilakukan kode tersebut. Untuk komponen selain HTML dan CSS, saya mengerjakannya berdasarkan tutorial secara manual, kemudian meminta feedback apakah sudah benar atau belum.
 
-Selain itu, saya juga menggunakan Gemini untuk bertanya pertanyaan-pertanyaan yang lebih spesifik tentang kegunaan suatu kode (misal: "Apa bedanya `<section>` dan `<article>`?")
+Ketika terdapat erorr/bug, saya meminta Gemini untuk menjelaskan apa bug yang terjadi dan bagaimana caranya untuk memperbaiki hal tersebut. Selain itu, saya juga menggunakan Gemini untuk bertanya pertanyaan-pertanyaan yang lebih spesifik tentang kegunaan suatu kode (misal: "Apa bedanya `<section>` dan `<article>`?")
