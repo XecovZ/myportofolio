@@ -1,10 +1,35 @@
 {% extends 'base.html' %}
+
+{% block meta %}
+    <title>Achievements - {{ name }}</title>
+{% endblock meta %}
+
 {% block content %}
     <main>
         <section class="achievement-section" id="achievements">
             <div class="container">
                 <p class="section-kicker">What I've achieved so far</p>
-                <h1>Achievement</h1>
+                
+                <div class="project-header">
+                    <h1>Achievement</h1>
+                    <a href="{% url 'main:create_achievement' %}"
+                       class="button project-add-button">
+                        <span aria-hidden="true">+</span>
+                        Tambah Achievement
+                    </a>
+                </div>
+
+                <form method="get"
+                      action="{% url 'main:show_achievement' %}"
+                      class="project-search">
+                    <input type="search"
+                           name="title"
+                           value="{{ title_query }}"
+                           placeholder="Cari berdasarkan nama achievement"
+                           class="project-search__input"
+                           aria-label="Cari berdasarkan nama achievement">
+                    <button type="submit" class="button">Cari</button>
+                </form>
 
                 <div class="achievement-grid">
                     {% for achievement in achievement_list %}
@@ -18,9 +43,23 @@
                         </time>
 
                         <p>{{ achievement.description }}</p>
+
+                        <!-- Opsional: Jika Anda punya modal delete untuk achievement -->
+                        <div class="project-card-actions">
+                            <div class="project-actions">
+                                <a href="{% url 'main:edit_achievement' achievement.id %}" class="button button-secondary">
+                                        Edit
+                                    </a>
+                                {% include "components/achievement_delete_modal.html" with achievement=achievement %}
+                            </div>
+                        </div>
                     </article>
                     {% empty %}
-                        <p class="empty-state">Belum ada achievement saat ini.</p> 
+                        {% if title_query %}
+                            <p class="empty-state">Tidak ada achievement dengan nama tersebut.</p>
+                        {% else %}
+                            <p class="empty-state">Belum ada achievement saat ini.</p> 
+                        {% endif %}
                     {% endfor %}
                     
                 </div>
