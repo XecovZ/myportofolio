@@ -47,6 +47,9 @@
                         <!-- Opsional: Jika Anda punya modal delete untuk achievement -->
                         <div class="project-card-actions">
                             <div class="project-actions">
+                                <a href="{% url 'main:edit_achievement' achievement.id %}" class="button button-secondary">
+                                        Edit
+                                    </a>
                                 {% include "components/achievement_delete_modal.html" with achievement=achievement %}
                             </div>
                         </div>

@@ -72,6 +72,20 @@ def delete_experience(request, experience_id):
 
     return redirect("main:show_experience")
 
+def edit_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+    form = ExperienceForm(request.POST or None, instance=experience)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Experience berhasil diubah!")
+        return redirect("main:show_experience")
+    
+    context = {
+        "name": "M. Fatih Danika",
+        "form": form, 
+        "is_edit": True,
+    }
+    return render(request, "experience_form.html", context)
 
 # ACHIEVEMENT
 
@@ -124,6 +138,20 @@ def delete_achievement(request, achievement_id):
 
     return redirect("main:show_achievement")
 
+def edit_achievement(request, achievement_id):
+    achievement = get_object_or_404(Achievement, pk=achievement_id)
+    form = AchievementForm(request.POST or None, instance=achievement)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Achievement berhasil diubah!")
+        return redirect("main:show_achievement")
+    
+    context = {
+        "name": "M. Fatih Danika",
+        "form": form, 
+        "is_edit": True,
+    }
+    return render(request, "achievement_form.html", context)
 
 # PROJECTS
 
@@ -178,3 +206,18 @@ def delete_project(request, project_id):
         return redirect("main:show_projects")
 
     return redirect("main:show_projects")
+
+def edit_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    form = ProjectForm(request.POST or None, instance=project)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Project berhasil diubah!")
+        return redirect("main:show_projects")
+    
+    context = {
+        "name": "M. Fatih Danika",
+        "form": form, 
+        "is_edit": True,
+    }
+    return render(request, "projects_form.html", context)
