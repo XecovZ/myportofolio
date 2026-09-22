@@ -12,11 +12,13 @@
                 
                 <div class="project-header">
                     <h1>Achievement</h1>
+                    {% if user.is_superuser %}
                     <a href="{% url 'main:create_achievement' %}"
                        class="button project-add-button">
                         <span aria-hidden="true">+</span>
                         Tambah Achievement
                     </a>
+                    {% endif %} 
                 </div>
 
                 <form method="get"
@@ -47,10 +49,12 @@
                         <!-- Opsional: Jika Anda punya modal delete untuk achievement -->
                         <div class="project-card-actions">
                             <div class="project-actions">
-                                <a href="{% url 'main:edit_achievement' achievement.id %}" class="button button-secondary">
+                                {% if user.is_superuser %}
+                                    <a href="{% url 'main:edit_achievement' achievement.id %}" class="button button-secondary">
                                         Edit
                                     </a>
-                                {% include "components/achievement_delete_modal.html" with achievement=achievement %}
+                                    {% include "components/achievement_delete_modal.html" with achievement=achievement %}
+                                {% endif %}  
                             </div>
                         </div>
                     </article>
