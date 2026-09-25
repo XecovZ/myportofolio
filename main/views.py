@@ -16,6 +16,11 @@ from django.contrib.auth.decorators import login_required  # Tambahkan baris ini
 from django.core.exceptions import PermissionDenied        # Tambahkan baris ini
 
 
+# Cek status EDITOR
+def is_editor(user):
+    return user.groups.filter(name='Editor').exists()
+
+
 # REGISTRATION
 def register(request):
     form = UserCreationForm(request.POST or None)
@@ -30,6 +35,7 @@ def register(request):
         "form": form,
     }
     return render(request, "register.html", context)
+
 
 # LOGIN
 def login_user(request):
@@ -47,6 +53,7 @@ def login_user(request):
         "form": form,
     }
     return render(request, "login.html", context)
+
 
 # LOGOUT
 def logout_user(request):
@@ -70,6 +77,7 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
+
 # EXPERIENCE
 
 def show_experience(request):
@@ -80,12 +88,19 @@ def show_experience(request):
     )
     experiences = [exp.object for exp in experiences]
     title_query = request.GET.get("title", "").strip()
+    
+    user_is_editor = False
+    if request.user.is_authenticated:
+        user_is_editor = is_editor(request.user)
+    
     context = {
         "name": "M. Fatih Danika",
         "experience_list": experiences,
         "title_query": title_query,
+        "is_editor_flag": user_is_editor,
     }
     return render(request, "experience.html", context)
+
 
 @login_required(login_url="/login/")
 def create_experience(request):
@@ -104,6 +119,7 @@ def create_experience(request):
     }
     return render(request, "experience_form.html", context)
 
+
 def get_experience_json(request):
     title_query = request.GET.get("title", "").strip()
     experience = Experience.objects.all()
@@ -113,6 +129,7 @@ def get_experience_json(request):
 
     experience_json = serializers.serialize("json", experience)
     return HttpResponse(experience_json, content_type="application/json")
+
 
 @login_required(login_url="/login/")
 def delete_experience(request, experience_id):
@@ -127,9 +144,10 @@ def delete_experience(request, experience_id):
 
     return redirect("main:show_experience")
 
+
 @login_required(login_url="/login/")
 def edit_experience(request, experience_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     experience = get_object_or_404(Experience, pk=experience_id)
     form = ExperienceForm(request.POST or None, instance=experience)
@@ -145,6 +163,7 @@ def edit_experience(request, experience_id):
     }
     return render(request, "experience_form.html", context)
 
+
 # ACHIEVEMENT
 
 def show_achievement(request):
@@ -155,12 +174,19 @@ def show_achievement(request):
     )
     achievements = [ach.object for ach in achievements]
     title_query = request.GET.get("title", "").strip()
+    
+    user_is_editor = False
+    if request.user.is_authenticated:
+        user_is_editor = is_editor(request.user)
+    
     context = {
         "name": "M. Fatih Danika",
         "achievement_list": achievements,
         "title_query": title_query,
+        "is_editor_flag": user_is_editor,
     }
     return render(request, "achievement.html", context)
+
 
 @login_required(login_url="/login/")
 def create_achievement(request):
@@ -179,6 +205,7 @@ def create_achievement(request):
     }
     return render(request, "achievement_form.html", context)
 
+
 def get_achievement_json(request):
     title_query = request.GET.get("title", "").strip()
     achievement = Achievement.objects.all()
@@ -188,6 +215,7 @@ def get_achievement_json(request):
 
     achievement_json = serializers.serialize("json", achievement)
     return HttpResponse(achievement_json, content_type="application/json")
+
 
 @login_required(login_url="/login/")
 def delete_achievement(request, achievement_id):
@@ -202,9 +230,10 @@ def delete_achievement(request, achievement_id):
 
     return redirect("main:show_achievement")
 
+
 @login_required(login_url="/login/")
 def edit_achievement(request, achievement_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     achievement = get_object_or_404(Achievement, pk=achievement_id)
     form = AchievementForm(request.POST or None, instance=achievement)
@@ -220,6 +249,7 @@ def edit_achievement(request, achievement_id):
     }
     return render(request, "achievement_form.html", context)
 
+
 # PROJECTS
 
 def show_projects(request):
@@ -231,11 +261,16 @@ def show_projects(request):
     )
     projects = [project.object for project in projects]
     title_query = request.GET.get("title", "").strip()
+    
+    user_is_editor = False
+    if request.user.is_authenticated:
+        user_is_editor = is_editor(request.user)
 
     context = {
         "name": "M. Fatih Danika",
         "project_list": projects,
         "title_query": title_query,
+        "is_editor_flag": user_is_editor,
     }
     return render(request, "project.html", context)
 
@@ -257,6 +292,7 @@ def create_project(request):
     }
     return render(request, "projects_form.html", context)
 
+
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
     projects = Project.objects.all()
@@ -268,6 +304,7 @@ def get_projects_json(request):
         "json", projects, use_natural_foreign_keys=True  # Tambahkan argumen ini
     )
     return HttpResponse(projects_json, content_type="application/json")
+
 
 @login_required(login_url="/login/")
 def delete_project(request, project_id):
@@ -282,9 +319,10 @@ def delete_project(request, project_id):
 
     return redirect("main:show_projects")
 
+
 @login_required(login_url="/login/")
 def edit_project(request, project_id):
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or is_editor(request.user)):
         raise PermissionDenied
     project = get_object_or_404(Project, pk=project_id)
     form = ProjectForm(request.POST or None, instance=project)
@@ -302,6 +340,7 @@ def edit_project(request, project_id):
 
 
 # Star feature
+
 @login_required(login_url="/login/")
 def toggle_star(request, project_id):
     project = get_object_or_404(Project, pk=project_id)

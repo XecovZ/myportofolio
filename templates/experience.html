@@ -4,15 +4,14 @@
 {% endblock meta %}
 {% block content %}
     <main>
-        <section class="experience-section" id="experience">
+        <section class="achievement-section" id="achievements">
             <div class="container">
                 <p class="section-kicker">Perjalanan saya sejauh ini</p>
 
                 <div class="project-header">
                     <h1>Experience</h1>
                     {% if user.is_superuser %}
-                        <a href="{% url 'main:create_experience' %}"
-                        class="button project-add-button">
+                        <a href="{% url 'main:create_experience' %}" class="button project-add-button">
                             <span aria-hidden="true">+</span>
                             Tambah Experience
                         </a>
@@ -57,11 +56,13 @@
                             <div class="project-card-actions">
                                 <div class="project-actions">
                                     <!-- Edit button -->
-                                    {% if user.is_superuser %}
+                                    {% if user.is_superuser or is_editor_flag %}
                                         <a href="{% url 'main:edit_experience' experience.id %}" class="button button-secondary">
                                             Edit
                                         </a>
-                                        {% include "components/experience_delete_modal.html" with experience=experience %}
+                                        {% if user.is_superuser%}
+                                            {% include "components/experience_delete_modal.html" with experience=experience %}
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
