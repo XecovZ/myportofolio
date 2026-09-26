@@ -49,6 +49,7 @@
                         <!-- Opsional: Jika Anda punya modal delete untuk achievement -->
                         <div class="project-card-actions">
                             <div class="project-actions">
+                                {% include "components/achievement_star.html" with achievement=achievement %}
                                 {% if user.is_superuser or is_editor_flag %}
                                     <a href="{% url 'main:edit_achievement' achievement.id %}" class="button button-secondary">
                                         Edit

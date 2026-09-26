@@ -39,4 +39,10 @@ urlpatterns = [
         toggle_star,
         name="toggle_star",
     ),
+    
+    path(
+        "achievement/<uuid:achievement_id>/star/",
+        toggle_star_achievement,
+        name="toggle_star_achievement",
+    ),
 ]

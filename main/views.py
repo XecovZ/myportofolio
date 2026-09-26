@@ -213,7 +213,8 @@ def get_achievement_json(request):
     if title_query:
         achievement = achievement.filter(title__icontains=title_query)
 
-    achievement_json = serializers.serialize("json", achievement)
+    achievement_json = serializers.serialize("json", achievement, use_natural_foreign_keys=True)  # Tambahkan argumen ini
+    
     return HttpResponse(achievement_json, content_type="application/json")
 
 
@@ -354,3 +355,18 @@ def toggle_star(request, project_id):
             project.starred_by.add(request.user)
 
     return redirect("main:show_projects")
+
+
+@login_required(login_url="/login/")
+def toggle_star_achievement(request, achievement_id):
+    achievement = get_object_or_404(Achievement, pk=achievement_id)
+
+    if request.method == "POST":
+        # Kalau akun ini sudah pernah memberi star, batalkan star-nya.
+        # Kalau belum, tambahkan star.
+        if request.user in achievement.starred_by.all():
+            achievement.starred_by.remove(request.user)
+        else:
+            achievement.starred_by.add(request.user)
+
+    return redirect("main:show_achievement")
