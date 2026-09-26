@@ -39,6 +39,10 @@ class Achievement(models.Model):
     organizer = models.CharField(max_length=255)
     achieved_at = models.DateTimeField()
     
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_achivements", blank=True
+    )
+    
     def __str__(self):
         return self.title
     

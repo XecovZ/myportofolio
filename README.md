@@ -65,6 +65,10 @@ Link chat history tugas 2: https://share.gemini.google/xs8GHTYL9LQR
 Link chat history tugas 3: https://share.gemini.google/azgSPG49PL6J
 
 
+### Tugas 3
+
+Link chat history tugas 4: https://share.gemini.google/67GpHJeHBv89
+
 ### AI Disclosure
 
 Saya menggunakan Gemini 3.1 untuk membantu pengerjaan tugas PBP. Strategi yang saya gunakan adalah: Untuk HTML, saya minta untuk diberikan best practice dalam HTML, kemudian saya implementasikan itu sendiri dan meminta feedback apakah sudah sesuai atau belum. Untuk CSS, saya menggunakan Gemini untuk men-generate kode untuk styling, kemudian saya minta penjelasan untuk setiap baris kode yang dibuat agar saya paham apa yang dilakukan kode tersebut. Untuk komponen selain HTML dan CSS, saya mengerjakannya berdasarkan tutorial secara manual, kemudian meminta feedback apakah sudah benar atau belum.
