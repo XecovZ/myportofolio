@@ -4,8 +4,9 @@ from main.models import Achievement
 from main.forms import AchievementForm, ExperienceForm, ProjectForm
 from django.contrib import messages
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -254,13 +255,14 @@ def edit_achievement(request, achievement_id):
 # PROJECTS
 
 def show_projects(request):
-    json_response = get_projects_json(request)
+    """ json_response = get_projects_json(request)
 
     projects = serializers.deserialize(
         "json",
         json_response.content.decode("utf-8"),
     )
-    projects = [project.object for project in projects]
+    projects = [project.object for project in projects] """
+    
     title_query = request.GET.get("title", "").strip()
     
     user_is_editor = False
@@ -269,8 +271,9 @@ def show_projects(request):
 
     context = {
         "name": "M. Fatih Danika",
-        "project_list": projects,
+        #"project_list": projects,    # > gaperlu lagi karena data diambil mandiri oleh JS
         "title_query": title_query,
+        "form": ProjectForm(),
         "is_editor_flag": user_is_editor,
     }
     return render(request, "project.html", context)
@@ -296,15 +299,32 @@ def create_project(request):
 
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
-    projects = Project.objects.all()
+    projects = Project.objects.prefetch_related('starred_by').all()
 
     if title_query:
         projects = projects.filter(title__icontains=title_query)
 
-    projects_json = serializers.serialize(
-        "json", projects, use_natural_foreign_keys=True  # Tambahkan argumen ini
-    )
-    return HttpResponse(projects_json, content_type="application/json")
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for project in projects:
+        starred_users = project.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(project.id),
+            "fields": {
+                "title": project.title,
+                "description": project.description,
+                "tech_stack": project.tech_stack,
+                "project_url": project.project_url,
+                "project_image_url": project.project_image_url,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+    return JsonResponse(data, safe=False)
 
 
 @login_required(login_url="/login/")
@@ -370,3 +390,22 @@ def toggle_star_achievement(request, achievement_id):
             achievement.starred_by.add(request.user)
 
     return redirect("main:show_achievement")
+
+
+@require_POST
+def create_project_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan proyek."},
+            status=403,
+        )
+
+    form = ProjectForm(request.POST)
+    if form.is_valid():
+        project = form.save()
+        return JsonResponse(
+            {"message": "Proyek berhasil ditambahkan.", "pk": str(project.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
