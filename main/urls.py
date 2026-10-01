@@ -48,4 +48,5 @@ urlpatterns = [
     
     # ajax
     path("projects/add-ajax/", create_project_ajax, name="create_project_ajax"),
+    path("achievement/add-ajax/", create_achievement_ajax, name="create_achievement_ajax"),
 ]

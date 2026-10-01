@@ -168,12 +168,6 @@ def edit_experience(request, experience_id):
 # ACHIEVEMENT
 
 def show_achievement(request):
-    json_response = get_achievement_json(request)
-    achievements = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    achievements = [ach.object for ach in achievements]
     title_query = request.GET.get("title", "").strip()
     
     user_is_editor = False
@@ -182,8 +176,9 @@ def show_achievement(request):
     
     context = {
         "name": "M. Fatih Danika",
-        "achievement_list": achievements,
+        #"achievement_list": achievements,
         "title_query": title_query,
+        "form": AchievementForm(),
         "is_editor_flag": user_is_editor,
     }
     return render(request, "achievement.html", context)
@@ -209,14 +204,31 @@ def create_achievement(request):
 
 def get_achievement_json(request):
     title_query = request.GET.get("title", "").strip()
-    achievement = Achievement.objects.all()
+    achievements = Achievement.objects.prefetch_related('starred_by').all()
 
     if title_query:
         achievement = achievement.filter(title__icontains=title_query)
 
-    achievement_json = serializers.serialize("json", achievement, use_natural_foreign_keys=True)  # Tambahkan argumen ini
-    
-    return HttpResponse(achievement_json, content_type="application/json")
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for achievement in achievements:
+        starred_users = achievement.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(achievement.id),
+            "fields": {
+                "title": achievement.title,
+                "organizer": achievement.organizer,
+                "achieved_at": achievement.achieved_at,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+    return JsonResponse(data, safe=False)
+
 
 
 @login_required(login_url="/login/")
@@ -405,6 +417,25 @@ def create_project_ajax(request):
         project = form.save()
         return JsonResponse(
             {"message": "Proyek berhasil ditambahkan.", "pk": str(project.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+
+@require_POST
+def create_achievement_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan achievement."},
+            status=403,
+        )
+
+    form = AchievementForm(request.POST)
+    if form.is_valid():
+        achievement = form.save()
+        return JsonResponse(
+            {"message": "Achievement berhasil ditambahkan.", "pk": str(achievement.id)},
             status=201,
         )
 
