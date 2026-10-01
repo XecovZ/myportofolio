@@ -207,7 +207,7 @@ def get_achievement_json(request):
     achievements = Achievement.objects.prefetch_related('starred_by').all()
 
     if title_query:
-        achievement = achievement.filter(title__icontains=title_query)
+        achievements = achievements.filter(title__icontains=title_query)
 
     # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
     data = []
