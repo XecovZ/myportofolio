@@ -3,7 +3,23 @@ from django.forms import ModelForm, Select, TextInput, Textarea, URLInput, DateT
 
 from main.models import Project, Achievement, Experience
 
+from django.core.exceptions import ValidationError
+from django.utils.html import strip_tags
+
 class ProjectForm(ModelForm):
+    
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Nama proyek tidak boleh hanya berisi tag HTML.")
+        return title
+
+    def clean_tech_stack(self):
+        return strip_tags(self.cleaned_data["tech_stack"]).strip()
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()
+    
     class Meta:
         model = Project
         fields = [
@@ -54,6 +70,20 @@ class ProjectForm(ModelForm):
         
         
 class AchievementForm(ModelForm):
+    
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Nama achievement tidak boleh hanya berisi tag HTML.")
+        return title
+
+    def clean_tech_stack(self):
+        return strip_tags(self.cleaned_data["tech_stack"]).strip()
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()
+    
+    
     achieved_at = DateTimeField(
         input_formats=['%Y-%m'],
         widget=DateTimeInput(

@@ -65,9 +65,24 @@ Link chat history tugas 2: https://share.gemini.google/xs8GHTYL9LQR
 Link chat history tugas 3: https://share.gemini.google/azgSPG49PL6J
 
 
-### Tugas 3
+### Tugas 4
 
 Link chat history tugas 4: https://share.gemini.google/67GpHJeHBv89
+
+
+### Tugas 5
+
+1. Debouncing adalah teknik yang digunakan untuk merestrict eksekusi fungsi fetch() dengan cara memberikan delay yang sudah ditentukan. Pada fitur pencarian AJAX, setiap ketikan user di search bar akan langsung merequest data ke server. Dengan adanya debouncing, beban server untuk memenuhi setiap request tersebut berkurang tanpa mengganggu pengalaman user.
+
+
+2. Penggunaan await pada fetch() berfungsi untuk menjeda kode yang dieksekusi pada fungsi asynchronous sampai proses HTTP request selesai dan mengembalikan response. Jika tidak ada, fungsi fetch() akan langsung mengembalikan object Promise yang belum utuh. Sementara itu, JavaScript akan langsung mengeksekusi baris kode berikutnya tanpa menunggu response dari server. Akibatnya, variabel kita tidak akan berisi data dari server dan proses selanjutnya (seperti memanggil .json()) akan memicu error.
+
+
+3. XSS adalah suatu celah keamanan yang memungkinkan setiap orang menyisipkan script pihak ketiga ke dalam web. Ini berbahaya karena sebagai developer, kita tidak tahu script apa yang disisipkan. Orang jahat bisa saja menjalankan script untuk mencuri atau memanipulasi data dari website kita. Data yang dirender lewat AJAX lebih rentan karena JavaScript akan langsung mengeksekusi tag html atau script mentah yang diterima server jika tidak membuat fungsi penyaringan secara manual. Sementara itu, Django memiliki fitur auto-escaping yang mengubah setiap variabel menjadi entitas HTML yang aman.
+
+
+Link chat history tugas 5: https://share.gemini.google/14i18fMq2Hvi
+
 
 ### AI Disclosure
 
