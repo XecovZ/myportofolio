@@ -77,7 +77,7 @@ class AchievementPageTest(TestCase):
             achieved_at=datetime.date(2026, 4, 1)
         )
         
-        response = self.client.get(reverse('main:show_achievement'))
+        response = self.client.get(reverse('main:get_achievement_json'))
         
         # Apakah terender di page?
         self.assertContains(response, "1st Place AI Challenge")
@@ -86,4 +86,4 @@ class AchievementPageTest(TestCase):
     def test_empty_state_message_when_no_data(self):
         # Sengaja ga buat data dummy biar kosong
         response = self.client.get(reverse('main:show_achievement'))
-        self.assertContains(response, "Belum ada achievement saat ini.")
+        self.assertContains(response, "Belum ada achievement yang ditambahkan atau ditemukan.")
