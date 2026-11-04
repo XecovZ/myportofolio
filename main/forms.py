@@ -76,13 +76,6 @@ class AchievementForm(ModelForm):
         if not title:
             raise ValidationError("Nama achievement tidak boleh hanya berisi tag HTML.")
         return title
-
-    def clean_tech_stack(self):
-        return strip_tags(self.cleaned_data["tech_stack"]).strip()
-
-    def clean_description(self):
-        return strip_tags(self.cleaned_data["description"]).strip()
-    
     
     achieved_at = DateTimeField(
         input_formats=['%Y-%m'],
