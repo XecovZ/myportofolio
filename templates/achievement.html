@@ -106,6 +106,10 @@
         {% include "components/achievement_form_modal.html" %}
     {% endif %}
 
+    {% if user.is_superuser or is_editor_flag %}
+        {% include "components/achievement_edit_modal.html" %}
+    {% endif %}
+
     {% csrf_token %}
     <script>
         // Konfigurasi
@@ -114,6 +118,7 @@
         const ACHIEVEMENT_STAR_ENDPOINT = "{% url 'api:achievement-star' '00000000-0000-0000-0000-000000000000' %}";
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
         const IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
+        const IS_EDITOR = "{{ is_editor_flag|yesno:'true,false' }}" === "true";
 
         const loadingState = document.getElementById('loading');
         const errorState = document.getElementById('error');
@@ -122,6 +127,9 @@
         const searchForm = document.getElementById('project-search-form');
         const searchInput = document.getElementById('search-input');
         const achievementForm = document.getElementById('project-form');
+        const editForm = document.getElementById('edit-achievement-form');
+        const editModal = document.getElementById('edit-achievement-modal');
+        let achievementsById = new Map();
         let achievementsAbortController;
         let searchDebounceTimer;
 
@@ -166,6 +174,9 @@
                     ${achievement.is_starred ? 'Unstar' : 'Star'}
                     <span class="star-count">${achievement.star_count}</span></button>`
                 : `<a href="{% url 'main:login' %}" class="button">Login untuk star (${achievement.star_count})</a>`;
+            const edit = IS_SUPERUSER || IS_EDITOR
+                ? `<button type="button" class="button button-secondary" data-action="edit"
+                    data-id="${escapeHtml(achievement.id)}">Edit</button>` : '';
             const remove = IS_SUPERUSER
                 ? `<button type="button" class="button button-danger" data-action="delete"
                     data-id="${escapeHtml(achievement.id)}">Hapus</button>` : '';
@@ -173,7 +184,7 @@
                 <p><span class="issued-by">Issued by</span> ${escapeHtml(achievement.organizer)}</p>
                 <time datetime="${escapeHtml(achievement.achieved_at.slice(0, 7))}">${escapeHtml(formattedDate)}</time>
                 <div class="project-card-actions"><div class="project-actions">
-                ${star}${remove}</div></div>`;
+                ${star}${edit}${remove}</div></div>`;
             return article;
         }
 
@@ -190,6 +201,7 @@
                 });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const achievements = await response.json();
+                achievementsById = new Map(achievements.map(item => [item.id, item]));
                 gridContainer.replaceChildren(...achievements.map(buildAchievementCardElement));
                 displayPageSection({ showGrid: achievements.length > 0, showEmpty: achievements.length === 0 });
             } catch (error) {
@@ -242,11 +254,46 @@
         }
 
         if (achievementForm) achievementForm.addEventListener('submit', addAchievement);
+        function openEditModal(id) {
+            const achievement = achievementsById.get(id);
+            if (!achievement) return;
+            editForm.dataset.id = id;
+            editForm.elements.title.value = achievement.title;
+            editForm.elements.organizer.value = achievement.organizer;
+            editForm.elements.achieved_at.value = achievement.achieved_at.slice(0, 7);
+            editModal.showPopover();
+        }
+
+        async function editAchievement(event) {
+            event.preventDefault();
+            const button = editForm.querySelector('button[type="submit"]');
+            button.disabled = true;
+            try {
+                await writeAchievement(
+                    achievementEndpoint(ACHIEVEMENT_DETAIL_ENDPOINT, editForm.dataset.id),
+                    'PATCH',
+                    Object.fromEntries(new FormData(editForm)),
+                );
+                editModal.hidePopover();
+                showToast('Berhasil', 'Achievement berhasil diubah.', 'success');
+                await fetchAchievements(searchInput.value.trim());
+            } catch (error) {
+                showToast('Gagal mengubah achievement', error.message, 'error');
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        if (editForm) editForm.addEventListener('submit', editAchievement);
 
         gridContainer.addEventListener('click', async function(event) {
             const button = event.target.closest('button[data-action]');
             if (!button || button.disabled) return;
             const action = button.dataset.action;
+            if (action === 'edit') {
+                openEditModal(button.dataset.id);
+                return;
+            }
             if (action === 'delete' && !window.confirm('Delete this achievement?')) return;
             button.disabled = true;
             try {
