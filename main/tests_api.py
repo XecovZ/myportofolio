@@ -2,11 +2,11 @@ import uuid
 
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from main.models import Project
-
+from main.models import Achievement, Project
 
 class ProjectAPITest(APITestCase):
     def setUp(self):
@@ -136,3 +136,166 @@ class ProjectAPITest(APITestCase):
             self.list_url, self.payload, format="json", HTTP_X_CSRFTOKEN=token,
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        
+class AchievementAPITest(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_superuser(
+            username="owner", password="test-password", email="owner@example.com",
+        )
+        self.regular_user = User.objects.create_user(
+            username="regular", password="test-password", email="regular@example.com",
+        )
+        self.editor = User.objects.create_user(username="editor", password="test-password")
+        self.editor.groups.add(Group.objects.create(name="Editor"))
+
+        self.achievement = Achievement.objects.create(
+            title="Juara Hackathon", organizer="COMPFEST", achieved_at=timezone.now(),
+        )
+        self.list_url = reverse("api:achievement-list")
+        self.detail_url = reverse("api:achievement-detail", args=[self.achievement.id])
+        self.star_url = reverse("api:achievement-star", args=[self.achievement.id])
+        self.payload = {
+            "title": "Juara Lomba Data", "organizer": "Satria Data", "achieved_at": "2026-04",
+        }
+
+    def assert_achievement_unchanged(self):
+        self.assertEqual(Achievement.objects.count(), 1)
+        self.achievement.refresh_from_db()
+        self.assertEqual(self.achievement.title, "Juara Hackathon")
+
+    def test_public_list_and_detail(self):
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]["id"], str(self.achievement.id))
+        self.assertFalse(response.data[0]["is_starred"])
+        self.assertEqual(self.client.get(self.detail_url).status_code, status.HTTP_200_OK)
+
+    def test_search_and_empty_results(self):
+        response = self.client.get(self.list_url, {"title": "HACKATHON"})
+        self.assertEqual(len(response.data), 1)
+        response = self.client.get(self.list_url, {"title": "tidak-ada"})
+        self.assertEqual(response.data, [])
+
+    def test_missing_achievement_returns_404(self):
+        url = reverse("api:achievement-detail", args=[uuid.uuid4()])
+        self.assertEqual(self.client.get(url).status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_guest_and_regular_user_cannot_write(self):
+        for user in (None, self.regular_user):
+            self.client.force_authenticate(user=user)
+            responses = [
+                self.client.post(self.list_url, self.payload, format="json"),
+                self.client.put(self.detail_url, self.payload, format="json"),
+                self.client.patch(self.detail_url, {"title": "Diubah"}, format="json"),
+                self.client.delete(self.detail_url),
+            ]
+            for response in responses:
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+            self.assert_achievement_unchanged()
+
+    def test_editor_can_patch_and_put(self):
+        self.client.force_authenticate(user=self.editor)
+        response = self.client.patch(self.detail_url, {"title": "Diubah"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.achievement.refresh_from_db()
+        self.assertEqual(self.achievement.title, "Diubah")
+        self.assertEqual(self.achievement.organizer, "COMPFEST")
+
+        response = self.client.put(self.detail_url, self.payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.achievement.refresh_from_db()
+        self.assertEqual(self.achievement.title, self.payload["title"])
+
+    def test_editor_cannot_create_or_delete(self):
+        self.client.force_authenticate(user=self.editor)
+        response = self.client.post(self.list_url, self.payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.delete(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_achievement_unchanged()
+
+    def test_owner_can_create_with_month_format(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.post(self.list_url, self.payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        created = Achievement.objects.get(pk=response.data["id"])
+        self.assertEqual((created.achieved_at.year, created.achieved_at.month), (2026, 4))
+
+    def test_owner_can_delete(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.delete(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Achievement.objects.filter(pk=self.achievement.id).exists())
+
+    def test_invalid_input_is_rejected(self):
+        self.client.force_authenticate(user=self.owner)
+        for changes, field in [
+            ({"title": "   "}, "title"),
+            ({"title": "<b></b>"}, "title"),
+            ({"organizer": "<b></b>"}, "organizer"),
+            ({"achieved_at": "bukan-tanggal"}, "achieved_at"),
+        ]:
+            response = self.client.post(
+                self.list_url, {**self.payload, **changes}, format="json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertIn(field, response.data)
+        self.assert_achievement_unchanged()
+
+    def test_html_tags_are_stripped(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.post(self.list_url, {
+            **self.payload, "title": "<b>Juara 1</b>", "organizer": "<i>Fasilkom</i>",
+        }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["title"], "Juara 1")
+        self.assertEqual(response.data["organizer"], "Fasilkom")
+
+    def test_star_requires_login(self):
+        response = self.client.post(self.star_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self.achievement.starred_by.count(), 0)
+
+    def test_star_toggles_for_each_logged_in_role(self):
+        for user in (self.regular_user, self.editor, self.owner):
+            self.client.force_authenticate(user=user)
+            response = self.client.post(self.star_url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertTrue(response.data["is_starred"])
+            self.assertEqual(response.data["star_count"], 1)
+            self.assertTrue(self.achievement.starred_by.filter(pk=user.pk).exists())
+
+            response = self.client.post(self.star_url)
+            self.assertFalse(response.data["is_starred"])
+            self.assertEqual(response.data["star_count"], 0)
+
+    def test_star_always_uses_request_user(self):
+        self.client.force_authenticate(user=self.regular_user)
+        self.client.post(self.star_url, {"user": self.owner.id}, format="json")
+        self.assertTrue(self.achievement.starred_by.filter(pk=self.regular_user.pk).exists())
+        self.assertFalse(self.achievement.starred_by.filter(pk=self.owner.pk).exists())
+
+    def test_computed_fields_are_read_only(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.post(self.list_url, {
+            **self.payload, "star_count": 99, "is_starred": True,
+            "starred_by_names": "palsu", "starred_by": [self.regular_user.id],
+        }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["star_count"], 0)
+        self.assertFalse(response.data["is_starred"])
+        self.assertEqual(response.data["starred_by_names"], "")
+
+    def test_response_does_not_expose_sensitive_account_data(self):
+        self.achievement.starred_by.add(self.regular_user)
+        response = self.client.get(self.detail_url)
+        self.assertNotIn("regular@example.com", str(response.data))
+        self.assertNotIn("password", str(response.data))
+
+    def test_session_write_without_csrf_is_rejected(self):
+        client = APIClient(enforce_csrf_checks=True)
+        self.assertTrue(client.login(username="owner", password="test-password"))
+        response = client.post(self.list_url, self.payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assert_achievement_unchanged()
