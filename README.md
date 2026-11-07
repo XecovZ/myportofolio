@@ -84,8 +84,27 @@ Link chat history tugas 4: https://share.gemini.google/67GpHJeHBv89
 Link chat history tugas 5: https://share.gemini.google/14i18fMq2Hvi
 
 
+### Tugas 6
+
+1. REST atau Representational State Transfer adalah suatu gaya arsitektur yang memodelkan data sebagai resource dengan URL yang konsisten. Aksinya ditentukan oleh beberapa HTTP Method: GET (read), POST (create), PUT/PATCH (update), dan DELETE (delete). REST bersifat stateless, yaitu setiap request membawa informasi autentikasinya sendiri. Selain itu, REST juga harus menggunakan status code yang benar. API yang selalu mengembalikan JSON tapi memakai URL seperti `/deleteProduct?id=1` lewat GET, atau mengembalikan 200 walaupun error belum bisa dikatakan RESTful. PUT mengubah seluruh resource/data, jadi semua field harus dikirim (contohnya mengedit keseluruhan informasi suatu produk tapi tidak ingin mengubah ID nya). Sementara itu PATCH mengubah sebagian field saja (misalnya mengubah stock dari suatu produk di marketplace).
+
+
+2. Pada Django REST Framework, serializer berguna untuk mengubah model atau queryset menjadi JSON (serialize), serta memvalidasi input JSON dan mengubahnya menjadi data python/model (deserialize). Kelebihan menggunakan serializer adalah: memiliki parser data type otomatis, builtin data validation, error handling yang terstandar, dan bisa mengambil semua field otomatis dari ModelSerializer.
+
+
+3. Autentikasi mengonfirmasi "siapa usernya?" (misal SessionAuthentication/TokenAuthentication), sedangkan otorisasi mengonfirmasi "boleh melakukan apa?" (misal IsAuthenticatedOrReadOnly/IsOwnerOrReadOnly). Menyembunyikan tombol di template hanya akan mengubah tampilan dan hanya berguna untuk user experience. Attacker tetap bisa mengirim HTTP request yang tidak diinginkan (misal DELETE) lewat curl/postman/devtools tanpa menyentuh UI. Oleh karena itu, hak user harus diperiksa dengan permission class di server.
+
+
+4. Dengan SessionAuthentication, browser mengirim cookie sessionid secara otomatis, termasuk request yang dipicu oleh situs lain. Akibatnya, situs jahat bisa mengirim HTTP request POST/DELETE atas nama user yang sedang login. Token CSRF bersifat unik dan hanya bisa dibaca halaman dari origin sendiri (berdasarkan Same Origin Policy), jadi token ini membuktikan bahwa request benar-benar berasal dari kita. `force_authenticate` melewati proses autentikasi itu sendiri. Akibatnya, request tanpa token CSRF akan tetap lolos. Untuk menguji CSRF, bisa pakai `APIClient(enforce_csrf_checks=True)` dan login dengan `client.login()`.
+
+
+Link chat history tugas 6: https://claude.ai/share/60e8bd1e-40b8-490e-b215-a904cebdc8eb
+
+
 ### AI Disclosure
 
 Saya menggunakan Gemini 3.1 untuk membantu pengerjaan tugas PBP. Strategi yang saya gunakan adalah: Untuk HTML, saya minta untuk diberikan best practice dalam HTML, kemudian saya implementasikan itu sendiri dan meminta feedback apakah sudah sesuai atau belum. Untuk CSS, saya menggunakan Gemini untuk men-generate kode untuk styling, kemudian saya minta penjelasan untuk setiap baris kode yang dibuat agar saya paham apa yang dilakukan kode tersebut. Untuk komponen selain HTML dan CSS, saya mengerjakannya berdasarkan tutorial secara manual, kemudian meminta feedback apakah sudah benar atau belum.
 
 Ketika terdapat erorr/bug, saya meminta Gemini untuk menjelaskan apa bug yang terjadi dan bagaimana caranya untuk memperbaiki hal tersebut. Selain itu, saya juga menggunakan Gemini untuk bertanya pertanyaan-pertanyaan yang lebih spesifik tentang kegunaan suatu kode (misal: "Apa bedanya `<section>` dan `<article>`?")
+
+Untuk tugas 6, saya berpindah model AI ke Claude Opus 5.5. Saya menggunakan model tersebut untuk memastikan apa yang saya buat sudah on track dengan ketentuan tugas. 
