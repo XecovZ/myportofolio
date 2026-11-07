@@ -1,0 +1,43 @@
+<div id="edit-achievement-modal"
+     class="project-form-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="edit-achievement-modal-title">
+    <button type="button"
+            class="project-form-modal__backdrop"
+            popovertarget="edit-achievement-modal"
+            popovertargetaction="hide"
+            aria-label="Tutup form edit achievement"></button>
+
+    <div class="project-form-modal__content">
+        <button type="button"
+                class="project-form-modal__close"
+                popovertarget="edit-achievement-modal"
+                popovertargetaction="hide"
+                aria-label="Tutup form edit achievement">×</button>
+
+        <h2 id="edit-achievement-modal-title">Edit Achievement</h2>
+        <form id="edit-achievement-form" class="project-form">
+            <div class="form-group">
+                <label for="edit-title">Nama Pencapaian</label>
+                <input type="text" id="edit-title" name="title" maxlength="255" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-organizer">Penyelenggara</label>
+                <input type="text" id="edit-organizer" name="organizer" maxlength="255" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-achieved-at">Waktu didapatkan</label>
+                <input type="month" id="edit-achieved-at" name="achieved_at" required>
+            </div>
+            <div class="project-form-modal__actions">
+                <button type="button"
+                        class="button button-secondary"
+                        popovertarget="edit-achievement-modal"
+                        popovertargetaction="hide">Batal</button>
+                <button type="submit" class="button">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
